@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic User Lists</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgb(230, 175, 9); /* Yellow background */
+            padding: 15px;
+            border: 1px solid black;
+            z-index: 10;
+            box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3); /* Shadow effect */
+            border-radius: 8px; /* Smooth corners */
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            padding: 2px 15px 1px 2px;;            
+            gap: 5px; /* Space between inputs and button */
+        }
+
+        .form-container label {
+            display: flex;
+            flex-direction: column;
+            font-weight: bold;
+            font-size: 13px; /* Adjust the size as needed */
+            margin-bottom: 3px;
+        }
+
+        .form-container input {
+            margin-top: 5px;
+            width: 100%; /* Makes both inputs the same width */
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 4px;
+        }
+
+        .form-container button {
+            width: 100%; /* Stretches button */
+            margin-top: 10px; /* Space between button and inputs */
+            padding: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color:#0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .form-container button:hover {
+            background-color: darkblue;
+        }
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        .table-wrapper {
+            position: absolute;
+            cursor: grab;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); /* Adds shadow */
+            border-radius: 8px; /* Smooth corners for the wrapper */
+            padding: 5px;
+        }
+
+        .table-wrapper {
+            position: absolute;
+            cursor: grab;
+            box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3); /* Adds shadow */
+            border-radius: 10px; /* Smooth corners for the wrapper */
+            padding: 5px;
+            overflow: hidden;
+            display: inline-block;
+            padding: 0; /* Removes any inner spacing */
+            margin: 0; /* Ensures no extra margin */
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 150px;
+            text-align: center;
+            background: white;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-top: 1px solid black;  /* Keep top border */
+            border-bottom: 1px solid black; /* Keep bottom border */
+            border-left: none;  /* Remove left border */
+            border-right: none; /* Remove right border */
+            overflow: hidden;
+            width: 100%;
+        }
+        th, td {
+            padding: 4px;
+            border-top: 1px solid rgba(0, 0, 0, 0.3); /* Keep top border */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.3); /* Keep bottom border */
+            border-left: none; /* Remove left border */
+            border-right: none; /* Remove right border */
+        }
+        th {
+            background-color: #f4f4f4;
+            border-top-left-radius: 0px; /* Ensures rounded corners on the top */
+            border-top-right-radius: 0px;
+        }
+        th {
+             background-color: #b0b0b0; /* Slightly darker grey for the header */
+            }
+
+        td {
+            background-color: #d3d3d3; /* Ensures table cells match */
+            font-size: 14px;  /* Adjust text size */
+            font-family: "Arial", sans-serif;  /* Change font */
+            font-weight: normal;  /* Adjust weight if needed */
+            text-align: left;  /* Keep text centered */
+            padding: 4px;  /* Maintain spacing */
+        }
+        tr:last-child td:first-child {
+            border-bottom-left-radius: 10px; /* Bottom left corner */
+        }
+
+        tr:last-child td:last-child {
+            border-bottom-right-radius: 10px; /* Bottom right corner */
+        }
+        table {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }        
+        .fixed-row {
+            position: sticky;
+            bottom: 0;
+            background-color: rgb(173, 106, 106);
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: left; /* Align text to the left */
+            padding-left: 10px; /* Add some spacing for better appearance */
+        }
+        .send-btn {
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-top-left-radius: 10px; /* Matches table's rounded corners */
+            border-top-right-radius: 10px; /* Matches table's rounded corners */
+        }
+        .send-btn:hover {
+            background-color: #0056b3;
+        }
+        .sent {
+            background-color: green !important;
+            cursor: default;
+        }
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid black;
+            background: white;
+            padding: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .button {
+            width: 100%; /* Stretches button */
+            margin-top: 10px; /* Space between button and inputs */
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="form-container">
+            <label>Nombre d'utilisateurs: <input type="number" id="userCount" min="1" max="10" value="7"></label>
+            <label>Threshold: <input type="number" id="threshold" min="0" value="4"></label>
+            <button onclick="drawTables()">Générer le Schéma</button>
+        </div>
+    </div>
+    
+    <div class="container" id="tableContainer"></div>
+
+    <script type="module">
+        import init,{WShamirUser } from "./pkg/wasm_interface.js"
+        await init();
+        window.WShamirUser = WShamirUser;
+    </script>
+
+    <script>
+        function getRandomUser(index) {
+            return 'User ' + (index + 1);
+        }
+        
+        function generateTable(user, angle, radius, index) {
+            let wrapper = document.createElement('div');
+            wrapper.classList.add('table-wrapper');
+            let x = 40 + radius * Math.cos(angle);
+            let y = 40 + radius * Math.sin(angle);
+            wrapper.style.top = y + '%';
+            wrapper.style.left = x + '%';
+            let button = document.createElement('button');
+            button.classList.add('send-btn');
+            button.textContent = 'Diffuser';
+            button.onclick = function() { sendMessage(user, button); };
+            let table = document.createElement('table');
+            table.innerHTML = `<tr><th style="width: 300px;">${user}</th></tr>`;
+
+            // Create "Share" row
+            let shareRow = document.createElement('tr');
+            shareRow.classList.add('fixed-row');
+            let shareCell = document.createElement('td');
+            shareCell.colSpan = 1; // Make it span the full width
+            shareCell.textContent = 'Partage secret :';
+            
+            // Apply the red background directly to the cell
+            shareCell.style.backgroundColor = "rgb(230, 175, 9)";
+            shareCell.style.color = "black";
+            shareCell.style.fontWeight = "bold";
+            shareCell.style.fontSize = "13px";
+
+            shareRow.appendChild(shareCell);
+            table.appendChild(shareRow); // Append at the bottom initially
+
+            let publicShareRow = document.createElement('tr');
+            publicShareRow.classList.add('fixed-row');
+            let publicShareCell = document.createElement('td');
+            publicShareCell.colSpan = 1;
+            publicShareCell.textContent = 'Partage publique :';
+            publicShareCell.style.backgroundColor = "rgb(230, 145, 9)";
+            publicShareCell.style.color = "black";
+            publicShareCell.style.fontWeight = "bold";
+            publicShareCell.style.textAlign = "left";
+            publicShareCell.style.paddingLeft = "10px";
+            publicShareCell.style.fontSize = "13px";
+            publicShareRow.appendChild(publicShareCell);
+            table.appendChild(publicShareRow);
+            wrapper.appendChild(button);
+            wrapper.appendChild(table);
+            wrapper.addEventListener('mousedown', dragStart);
+            shareCell.style.textAlign = "left";
+            shareCell.style.paddingLeft = "10px"; // Adds spacing from the left edge
+            return wrapper;
+        }
+       
+        function drawTables() {
+            const container = document.getElementById("tableContainer");
+            container.innerHTML = "";
+            let userCount = parseInt(document.getElementById("userCount").value) || 3;
+            let threshold = parseInt(document.getElementById("threshold").value) || 0;
+            let radius = 30;            
+            for (let i = 0; i < userCount; i++) {
+                let angle = (i / userCount) * (2 * Math.PI);
+                container.appendChild(generateTable(getRandomUser(i), angle, radius, i));
+            }
+        }
+
+        function sendMessage(sender, button) {
+            if (button.classList.contains('sent')) return;           
+            let tables = document.querySelectorAll("table");
+            let randomValue = `Part de ${sender}: <span style="color: blue;"> Message ${Math.floor(Math.random() * 100)}</span>`;
+            tables.forEach(table => {
+                let row = document.createElement("tr");
+                let cell = document.createElement("td");
+                cell.innerHTML = randomValue;
+                cell.style.fontSize ="13px";
+                row.appendChild(cell);
+                let shareRow = table.querySelector(".fixed-row");
+                table.insertBefore(row, shareRow);
+            });
+            button.classList.add('sent');
+            button.textContent = 'Diffusé';
+            checkAllSent();
+        }
+
+
+        function checkAllSent() {
+            let allButtons = document.querySelectorAll(".send-btn");
+            let allSent = Array.from(allButtons).every(button => button.classList.contains('sent'));            
+            if (allSent) {
+                showMessageBox();
+            }
+        }
+
+        // function showMessageBox() {
+        //     let messageBox = document.createElement('div');
+        //     messageBox.classList.add('message-box');
+        //     messageBox.textContent = 'All is done';
+        //     document.body.appendChild(messageBox);
+        //     messageBox.addEventListener('mousedown', dragStart);
+        // }
+
+        function showMessageBox() {
+            let container = document.getElementById("tableContainer");
+
+            // Remove existing Authority table if it already exists
+            let existingAuthorityTable = document.getElementById("authorityTable");
+            if (existingAuthorityTable) {
+                    existingAuthorityTable.remove();
+                }
+
+            // Create wrapper for the new table
+            let wrapper = document.createElement("div");
+            wrapper.id = "authorityTable"; // Set an ID for easy removal later
+            wrapper.classList.add("table-wrapper");
+            wrapper.style.position = "absolute";
+            wrapper.style.top = `${window.innerHeight / 2 - 50}px`; // Adjusted position
+            wrapper.style.left = `${window.innerWidth / 2 - 100}px`; // Adjusted position
+            wrapper.style.width = "200px"; // Fixed width
+            wrapper.style.border = "1px solid black";
+            wrapper.style.overflow = "hidden";
+            wrapper.style.cursor = "grab"; // Cursor for dragging
+            // Create the table
+            let table = document.createElement("table");
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+            // Create the table header
+            let headerRow = document.createElement("tr");
+            let headerCell = document.createElement("th");
+            headerCell.textContent = "Autorité de Publication ";
+            headerCell.style.backgroundColor = "#b0b0b0";
+            headerCell.style.padding = "10px";
+            headerCell.style.textAlign = "center";
+            headerRow.appendChild(headerCell);
+            table.appendChild(headerRow);
+            // Collect the first and last rows of each table
+            let tables = document.querySelectorAll(".table-wrapper table");
+            tables.forEach(tbl => {
+                let rows = tbl.querySelectorAll("tr"); // Get all rows
+                let firstRow = rows.length > 1 ? rows[0] : null; // First row after the header
+                let lastRow = rows.length > 2 ? rows[rows.length - 1] : null; // Last row (excluding fixed row)
+                if (firstRow && lastRow) {
+                    let newRow = document.createElement("tr");
+                    let newCell = document.createElement("td");
+                    // Combine first-row and last-row content
+                    newCell.innerHTML = lastRow.cells[0].innerHTML +"("+firstRow.cells[0].innerHTML+") :";
+                    newCell.style.fontSize = "13px";
+                    newCell.style.padding = "5px";
+                    newRow.appendChild(newCell);
+                    table.appendChild(newRow);
+                }
+            });
+
+            // Add final fixed row "Public key"
+            let fixedRow = document.createElement("tr");
+            let fixedCell = document.createElement("td");
+            fixedCell.textContent = "Public key";
+            fixedCell.style.fontSize = "13px";
+            fixedCell.style.fontWeight = "bold";
+            fixedCell.style.textAlign = "center";
+            fixedCell.style.padding = "8px";
+            fixedCell.style.backgroundColor = "red"; // Red background for last row
+            fixedRow.appendChild(fixedCell);
+            table.appendChild(fixedRow);
+
+            // Append the table inside the wrapper
+            wrapper.appendChild(table);
+            wrapper.addEventListener('mousedown', dragStart);
+            container.appendChild(wrapper);
+        }
+
+
+
+
+
+        function dragStart(event) {
+            let wrapper = event.currentTarget;
+            let shiftX = event.clientX - wrapper.getBoundingClientRect().left;
+            let shiftY = event.clientY - wrapper.getBoundingClientRect().top;            
+            function moveAt(pageX, pageY) {
+                wrapper.style.left = pageX - shiftX + 'px';
+                wrapper.style.top = pageY - shiftY + 'px';
+            }
+            
+            function onMouseMove(event) {
+                moveAt(event.pageX, event.pageY);
+            }
+            
+            document.addEventListener('mousemove', onMouseMove);            
+            function stopDrag() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+            
+            document.addEventListener('mouseup', stopDrag);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const __wbg_wshamiruser_free: (a: number, b: number) => void;
+export const wshamiruser_new: (a: any, b: number, c: number, d: number) => number;
+export const wshamiruser_update_share: (a: number, b: number, c: number, d: number, e: number) => void;
+export const wshamiruser_get_share: (a: number) => [number, number];
+export const wshamiruser_get_secret_part_for_user: (a: number, b: number, c: number) => [number, number];
+export const wshamiruser_generate_secret: (a: number) => void;
+export const wshamiruser_get_partial_pubkey: (a: number) => [number, number];
+export const __wbg_pubkeyadder_free: (a: number, b: number) => void;
+export const pubkeyadder_new: () => number;
+export const pubkeyadder_add: (a: number, b: number, c: number) => void;
+export const pubkeyadder_get_pubkey: (a: number) => [number, number];
+export const __wbindgen_exn_store: (a: number) => void;
+export const __externref_table_alloc: () => number;
+export const __wbindgen_export_2: WebAssembly.Table;
+export const __wbindgen_malloc: (a: number, b: number) => number;
+export const __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+export const __wbindgen_free: (a: number, b: number, c: number) => void;
+export const __wbindgen_start: () => void;
