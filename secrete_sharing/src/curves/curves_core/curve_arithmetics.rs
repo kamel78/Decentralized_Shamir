@@ -5,7 +5,9 @@
 
 use base64::engine::general_purpose;
 use base64::Engine;
+use hmac::{Hmac, Mac};
 use num_bigint::ToBigInt;
+use sha2::Sha256;
 use crate:: fields::fields_core::arithmetic_interface::ArithmeticOperations;
 use crate::fields::fields_core::hashs::{i2osp, os2ip};
 use crate::fields::fields_core::prime_fields::{FieldElement, PrimeField};
@@ -333,6 +335,35 @@ impl<'a, const R:usize,const N:usize> Point<'a, R,N>
             {   
                 general_purpose::STANDARD.encode(self.to_compressed_bytearray())
             }
+        
+        pub fn derive_hkdf(&self,sizeinbits:usize,salt :Option<&[u8]>) -> Vec<u8>
+            {
+                const DSIZE :usize = 16; // length of sha256 output in bytes
+                let size_in_bytes = (sizeinbits / 8) + ((sizeinbits % 8)!=0) as usize;
+                if size_in_bytes < DSIZE {panic!("length of the output have to be at least equal to th hash size ...")}
+                if size_in_bytes > DSIZE * 255 {panic!("length of the output cannot be longer than 255 * Hashlength ...")}
+                let key = self.to_compressed_bytearray();
+                let size = (sizeinbits / 8) + ((sizeinbits % 8)!=0) as usize;
+                let mut _salt = Vec::<u8>::with_capacity(size);
+                if !salt.is_none() {_salt.resize(salt.unwrap().len(),0);
+                                    _salt.extend(salt.unwrap());}
+                else { _salt.resize(size, 0);}
+                let mut mac = Hmac::<Sha256>::new_from_slice(&_salt).expect("HMAC can take key of any size");
+                mac.update(&key);
+                let extracted_result = mac.finalize().into_bytes();
+                let mut okm = Vec::<u8>::new();
+                let mut ti = Vec::<u8>::new();
+                let n = (size_in_bytes + DSIZE - 1) / DSIZE;
+                for i in 0..n {  ti.push((i+1) as u8);
+                                        let mut mac = Hmac::<Sha256>::new_from_slice(&ti).expect("HMAC can take key of any size");
+                                        mac.update(&extracted_result);
+                                        let tmp = mac.finalize().into_bytes();
+                                        okm.extend(tmp);
+                                        ti.extend(tmp);
+                                    }
+                okm.truncate(size_in_bytes);
+                okm
+            }    
     }
 
 impl<'a, const R:usize,const N:usize> fmt::Debug for Point<'a,R,N> 

@@ -12,3 +12,7 @@ once_cell = "1.19.0"
 rand = { version = "0.8", default-features = false, features = ["std"] }
 getrandom = { version = "0.2", features = ["js"] }
 argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
+hmac ="0.12.1"
+aes = "0.8"
+ctr = "0.9"
+hex = "0.4"

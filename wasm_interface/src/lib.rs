@@ -52,7 +52,8 @@ impl  WShamirUser {
     #[wasm_bindgen]
     pub fn get_partial_pubkey(&self) ->String
     {
-        self.user.partial_pubkey.encode_to_base64()
+        if self.user.partial_pubkey.is_infinity() {"".to_string()}
+        else { self.user.partial_pubkey.encode_to_base64() }
     }
 }
 
@@ -83,3 +84,5 @@ impl  PubKeyAdder {
     }
     
 }
+
+// build with wasm-pack build --target web

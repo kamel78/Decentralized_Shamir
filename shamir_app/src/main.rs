@@ -3,8 +3,8 @@
 //       - BOUMEDIENE Karima
 // Encadrer par : FARAOUN Kamel Mohamed 
 
-use secrete_sharing::{   fields:: p256k1_order_field, p256_curve, 
-                    shamir::shamir_core::core::{create_shamir_users_group, get_random_users_subgroup, get_users_group_pubkey, ShamirCombiner}};
+use secrete_sharing::{   encryption::p256k1_light_eci_crypt, fields:: p256k1_order_field, p256_curve, 
+                         shamir::shamir_core::core::{create_shamir_users_group, get_random_users_subgroup, get_users_group_pubkey, ShamirCombiner}};
 
 
 fn main() {    
@@ -49,5 +49,20 @@ fn main() {
     combiner.reconstruct(&sub_group);
     println!("Reconstructed secrete key : {}", combiner.secrete_key);       
     println!("Reconstructed public key : {}", combiner.public_key);       
+
+
+    // Let's check correctness of encryption/decryption using ECI implemented code
+
+    let engine = p256k1_light_eci_crypt();
+    let plaintext = "This is a simple test message for checking encryption/decryption using implemented ECI mechanisme".to_string();
+    println!("The plaintext is :{}",plaintext);
+    let secrete_key =p256_curve().fr.random_element();
+    let pub_key = p256_curve().generator().multiply(&secrete_key);
+    let encrypted = engine.encrypt_string(&plaintext, &pub_key);
+    println!("The ciphertext is :{}",encrypted);
+    let decrypted = engine.decrypt_string(&encrypted, &secrete_key);
+    println!("The decrypted message is :{}",decrypted);
+
+
 
 }

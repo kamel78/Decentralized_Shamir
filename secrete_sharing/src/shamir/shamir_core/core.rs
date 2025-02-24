@@ -77,7 +77,7 @@ impl<'a, const N:usize, const R:usize> ShamirUser<'a, N,R> {
             shared_secrets: HashMap::new(),
             received_secrets: HashMap::new(),
             partial_secrete:field.zero(),            
-            partial_pubkey:curve.generator().clone(),
+            partial_pubkey:curve.infinity(),
             threshold,
             num_users:users_list.len(),
             field,

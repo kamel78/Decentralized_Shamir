@@ -11,6 +11,7 @@ use once_cell::sync::OnceCell;
 pub mod fields;
 pub mod curves;
 pub mod shamir;
+pub mod encryption;
 
 static P256_CURVE :OnceCell<Secp256k1<'static,4,4>> = OnceCell::new();
 
