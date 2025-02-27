@@ -1,3 +1,0 @@
-[workspace]
-members = ["secrete_sharing","wasm_interface", "shamir_app"]
-resolver = "2"
