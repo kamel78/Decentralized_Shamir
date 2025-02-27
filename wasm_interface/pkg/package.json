@@ -1,0 +1,15 @@
+{
+  "name": "wasm_interface",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "wasm_interface_bg.wasm",
+    "wasm_interface.js",
+    "wasm_interface.d.ts"
+  ],
+  "main": "wasm_interface.js",
+  "types": "wasm_interface.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
