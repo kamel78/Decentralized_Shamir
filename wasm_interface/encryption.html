@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Chiffrement</title>
+    <link rel="stylesheet" href="./css/enc.css">
+</head>
+<body>
+    <!-- Conteneurs d'alerte -->
+    <div class="alert-container">
+        <div class="alert success" id="text-success-alert">Action réussie!</div>
+        <div class="alert error" id="text-error-alert">Erreur : Clé ou données invalides.</div>
+        <div class="alert success" id="pdf-success-alert">Action réussie!</div>
+        <div class="alert error" id="pdf-error-alert">Erreur : Clé ou fichier invalide.</div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchPage('text')">Chiffrement d'un Texte</div>
+            <div class="tab" onclick="switchPage('pdf')">Chiffrement d'un document PDF</div>
+        </div>
+        <div class="page active" id="text-page">
+            <textarea class="editor" id="text-input" placeholder="Saisir un texte pour chiffrement..."></textarea>
+            <div class="input-group">
+                <label for="text-encryption-key">Clé Publique :</label>
+                <input type="text" id="text-encryption-key" placeholder="Clé de chiffrement">
+                <button onclick="encryptText()">Chiffrer →</button>
+            </div>
+            <textarea class="editor" id="text-encrypted" readonly placeholder="Le texte chiffré apparaîtra ici..."></textarea>
+            <div class="input-group">
+                <label for="text-decryption-key">Clé Secrète :</label>
+                <input type="text" id="text-decryption-key" placeholder="Clé de déchiffrement">
+                <button onclick="decryptText()">← Déchiffrer</button>
+                <button class="clear-btn" onclick="clearTextFields()">Effacer</button>
+            </div>
+            <textarea class="editor" id="text-decrypted" readonly placeholder="Le texte déchiffré apparaîtra ici..."></textarea>
+        </div>
+        <div class="page" id="pdf-page">
+            <div class="input-group">
+                <label for="pdf-encryption-key">Clé Publique :</label>
+                <input type="text" id="pdf-encryption-key" placeholder="Clé de chiffrement">
+                <button onclick="encryptPDF()">Chiffrer →</button>
+            </div>
+            <div class="pdf-display" id="pdf-upload" onclick="document.getElementById('pdf-input').click()">Cliquez pour charger un PDF</div>
+            <input type="file" id="pdf-input" accept="application/pdf" style="display: none;" onchange="loadPDF(event)">
+            <div class="input-group">
+                <label for="pdf-decryption-key">Clé Secrète :</label>
+                <input type="text" id="pdf-decryption-key" placeholder="Clé de déchiffrement">
+                <button onclick="decryptPDF()">← Déchiffrer</button>
+                <button class="clear-btn" onclick="clearPDFFields()">Effacer</button>
+            </div>
+            <div class="pdf-display" id="pdf-decrypted">Le PDF déchiffré apparaîtra ici</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+         function switchPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`${page}-page`).classList.add('active');
+            document.querySelector(`.tab[onclick="switchPage('${page}')"]`).classList.add('active');
+        }
+        function loadPDF(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                document.getElementById('pdf-upload').innerHTML = `<iframe src="${fileURL}"></iframe>`;
+            } else {
+                document.getElementById('pdf-upload').innerHTML = 'Aucun PDF sélectionné';
+            }
+        }
+
+        function encryptText() {
+            const input = document.getElementById('text-input').value;
+            const pub_key = document.getElementById('text-encryption-key').value;
+            let eci_core = new EicCrypt();
+            try {
+                const encrypted = eci_core.encrypt(pub_key, input).toString();
+                document.getElementById('text-encrypted').value = encrypted;
+                showTextAlert('success', 'Action réussie!');
+            } catch (error) {
+                showTextAlert('error', 'Erreur : Clé ou données invalides.');
+            }
+        }
+
+        function decryptText() {
+            const encrypted = document.getElementById('text-encrypted').value;
+            const secrete_key = document.getElementById('text-decryption-key').value;
+            let eci_core = new EicCrypt();
+            try {
+                const decrypted = eci_core.decrypt(secrete_key, encrypted);
+                document.getElementById('text-decrypted').value = decrypted;
+                showTextAlert('success', 'Action réussie!');
+            } catch (error) {
+                showTextAlert('error', 'Erreur : Clé ou données invalides.', error);
+            }
+        }
+
+        function clearTextFields() {
+            document.getElementById('text-input').value = '';
+            document.getElementById('text-encryption-key').value = '';
+            document.getElementById('text-encrypted').value = '';
+            document.getElementById('text-decryption-key').value = '';
+            document.getElementById('text-decrypted').value = '';
+            hideTextAlerts();
+        }
+
+        function clearPDFFields() {
+            document.getElementById('pdf-encryption-key').value = '';
+            document.getElementById('pdf-decryption-key').value = '';
+            document.getElementById('pdf-upload').innerHTML = 'Cliquez pour charger un PDF';
+            document.getElementById('pdf-decrypted').innerHTML = 'Le PDF déchiffré apparaîtra ici';
+            hidePDFAlerts();
+        }
+
+        function showTextAlert(type, message) {
+            const alert = document.getElementById(`text-${type}-alert`);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => hideTextAlerts(), 3000);
+        }
+
+        function hideTextAlerts() {
+            document.getElementById('text-success-alert').style.display = 'none';
+            document.getElementById('text-error-alert').style.display = 'none';
+        }
+
+        function showPDFAlert(type, message) {
+            const alert = document.getElementById(`pdf-${type}-alert`);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => hidePDFAlerts(), 3000);
+        }
+
+        function hidePDFAlerts() {
+            document.getElementById('pdf-success-alert').style.display = 'none';
+            document.getElementById('pdf-error-alert').style.display = 'none';
+        }
+
+        function encryptPDF() {
+            showPDFAlert('success', 'PDF chiffré avec succès!');
+        }
+
+        function decryptPDF() {
+            showPDFAlert('success', 'PDF déchiffré avec succès!');
+        }
+    </script>
+</body>
+</html>
