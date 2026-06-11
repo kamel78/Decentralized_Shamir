@@ -22,7 +22,7 @@ This project implements a decentralized threshold secret sharing scheme using Ru
 ## Getting Started  
 Clone the repository:  
 ```bash
-git clone https://github.com/yourusername/shamir-decentralized.git
+git clone https://github.com/kamel78/Decentralized_Shamir.git
 cd shamir-decentralized
 
 
