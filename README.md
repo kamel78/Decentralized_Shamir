@@ -42,27 +42,48 @@ $$\mathit{PK}_{\mathsf{global}} = \sum \mathit{PK}_i$$.
 
 ## 2. System Architecture
 
-The project is structured as a decoupled, multi-tier workspace designed to keep untrusted cloud resources completely isolated from your cryptographic operations.
+The project is structured as a multi-tier repository dividing client-side cryptographic logic, a WebAssembly frontend interface, and a centralized authentication and coordination server.
 
 ```text
 .
-├── client/                 # Web-Client Core (Isolated Sandbox Environment)
-│   ├── src/
-│   │   ├── crypto/         # WebAssembly-compiled Cryptographic Modules
-│   │   │   ├── opaque.rs   # OPAQUE Client-Side Protocol Wrapper
-│   │   │   └── shamir.rs   # WShamirUser Polynomial Evaluation Matrix
-│   │   └── components/     # UI Layer (Commission and Bidder Interfaces)
-│   └── Cargo.toml
-│
-├── server/                 # Untrusted Backend Coordinator (Axum Infrastructure)
-│   ├── src/
-│   │   ├── api/            # REST Endpoints & WebSocket Synchronization Engines
-│   │   ├── auth/           # OPAQUE Server-Side Authentication Router
-│   │   └── coordinator/    # Server-Blind DKG & Global Public Key Aggregator
-│   └── Cargo.toml
-│
-└── storage/                # Persistence Layer
-    └── migration/          # PostgreSQL SeaORM Schema Specifications
+├── LICENSE
+├── README.md
+├── client/                     # Native Client-Side Cryptographic Engine (Rust)
+│   ├── Cargo.toml              # Compiles core primitives to WebAssembly (axclient)
+│   ├── pkg/                    # Generated wasm-bindgen build artifacts
+│   │   ├── axclient.js         # JavaScript glue code
+│   │   └── axclient_bg.wasm    # Compiled Wasm binary
+│   └── src/
+│       └── lib.rs              # Client-side cryptographic operations
+└── server/                     # Centralized Coordination & Backend Server
+    ├── Cargo.toml              # Axum server configuration
+    ├── tests/                  # Integration and infrastructure tests
+    │   └── db_connection.rs    # Database connectivity verification
+    ├── wasm_interface/         # Frontend Web Interface Layout
+    │   ├── Cargo.toml          # Static asset interface layer
+    │   ├── html/               # Interactive workflows (sharing, encryption, reconstruction)
+    │   ├── css/ & webfonts/    # UI presentation and typography assets
+    │   ├── scripts/            # Client side core interaction logic (core.js, files.js)
+    │   └── src/lib.rs          # Web-assembly client frontend endpoint mapping
+    ├── static/                 # Static Server Assets & Web Templates
+    │   ├── emails/             # HTML mail forms (invitations for commissions & reconstruction)
+    │   ├── html/               # Authentication & dashboard templates (login, register, dash)
+    │   └── pkg/                # Mirrored WebAssembly runtime artifacts for server delivery
+    └── src/                    # Backend Core Logic Architecture
+        ├── main.rs             # Application server entry point
+        ├── authorization_jwt/  # Stateless JSON Web Token validation micro-service
+        ├── authentication_opaque/ # OPAQUE aPAKE Protocol Implementation
+        │   ├── opaque_server.rs   # Server-side registration and login state machines
+        │   └── cipher_suite.rs    # Cryptographic suite configurations
+        ├── handlers/           # Route Controllers & Request Endpoints
+        │   ├── auth_handlers.rs   # Session and enrollment request routing
+        │   ├── shamir.rs          # Threshold cryptographic share transport triggers
+        │   └── marche_handlers.rs # Procurement workflow operations
+        └── entities/           # Database Domain Models & Persistence Layer
+            ├── db.rs              # Database pool manager connection engine
+            ├── users.rs           # Account identities data mappings
+            ├── user_keys.rs       # Server-blind OPAQUE password file credentials
+            └── commission_shares.rs # Encrypted decentralized secret pieces tracking
 ```
 
 ## 3. Cryptographic Trust Boundary
