@@ -1,8 +1,0 @@
-[package]
-name = "shamir_app"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-secrete_sharing = {path = "../secrete_sharing"}
-rand ="0.9.0"
