@@ -1,0 +1,15 @@
+{
+  "name": "axclient",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "axclient_bg.wasm",
+    "axclient.js",
+    "axclient.d.ts"
+  ],
+  "main": "axclient.js",
+  "types": "axclient.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

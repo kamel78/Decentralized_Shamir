@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Chiffrement - SecretSplit</title>
+    <meta name="description" content="Secure Secret Sharing Platform" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- Add Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+   <style>
+    .marche-select-container {
+        background-color: rgba(249, 250, 251, 0.9);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .marche-select {
+        transition: all 0.2s ease;
+    }
+    .marche-select:focus {
+        border-color: #3b82f6;
+        ring: 2px;
+    }
+</style>
+   <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#f0f9ff',
+                100: '#e0f2fe',
+                200: '#bae6fd',
+                300: '#7dd3fc',
+                400: '#38bdf8',
+                500: '#0ea5e9',
+                600: '#0284c7',
+                700: '#0369a1',
+                800: '#075985',
+                900: '#0c4a6e',
+              },
+              secondary: {
+                50: '#f5f3ff',
+                100: '#ede9fe',
+                200: '#ddd6fe',
+                300: '#c4b5fd',
+                400: '#a78bfa',
+                500: '#8b5cf6',
+                600: '#7c3aed',
+                700: '#6d28d9',
+                800: '#5b21b6',
+                900: '#4c1d95',
+              },
+              accent: {
+                50: '#f0fdf4',
+                100: '#dcfce7',
+                200: '#bbf7d0',
+                300: '#86efac',
+                400: '#4ade80',
+                500: '#22c55e',
+                600: '#16a34a',
+                700: '#15803d',
+                800: '#166534',
+                900: '#14532d',
+              },
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'bounce-slow': 'bounce 3s infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Add Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 z-50 transition-all duration-300 px-4 md:px-6 lg:px-8 py-5 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 font-bold text-lg text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-400 dark:to-secondary-400 bg-clip-text text-transparent">SecretSplit</span>
+        </a>
+        
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="/" class="text-sm font-semibold transition-colors hover:text-primary-600 dark:hover:text-primary-400 text-gray-600 dark:text-gray-300">About</a>
+          <a href="login" class="text-sm font-semibold transition-colors hover:text-primary-600 dark:hover:text-primary-400 text-gray-600 dark:text-gray-300">Login</a>
+        </div>
+        
+        <!-- Mobile Navigation Button -->
+        <button class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Open Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <main class="min-h-screen pt-24 pb-16 px-4">
+      <div class="max-w-4xl mx-auto animate__animated animate__fadeIn">
+        <!-- Alert Container -->
+        <div class="space-y-2 mb-6">
+          <div class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" id="pdf-success-alert" role="alert">
+            <span class="block sm:inline">Action réussie!</span>
+          </div>
+          <div class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" id="pdf-error-alert" role="alert">
+            <span class="block sm:inline">Erreur : Clé ou fichier invalide.</span>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-6">
+          <!-- Market Information Section -->
+    <!-- In your Market Information Section, replace the current div with: -->
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Informations du Marché</h2>
+        <button id="refresh-marches" class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400">
+            <i class="fas fa-sync-alt mr-1"></i> Refresh
+        </button>
+    </div>
+    
+    <!-- Add this container for the marche selection -->
+    <div id="marche-select-container" class="marche-select-container hidden">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Select Marché</label>
+        <select id="marche-select" class="marche-select w-full p-2 border rounded">
+            <option value="">Select a marché</option>
+        </select>
+    </div>
+    
+    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-300">ID du Marché:</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200" id="marche-id">N/A</p>
+            </div>
+            <div class="md:col-span-2">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Description:</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200" id="marche-description">N/A</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Date de l'événement:</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200" id="marche-event-date">N/A</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+          <!-- PDF Encryption Section -->
+          <div>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">Chiffrement de Document PDF</h2>
+            
+            <div id="pdf-upload" onclick="document.getElementById('pdf-input').click()"
+              class="w-full h-64 mb-6 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-primary-500 transition-colors">
+              <i class="fas fa-file-pdf text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
+              <p class="text-gray-500 dark:text-gray-400">Cliquez pour charger un PDF</p>
+            </div>
+            <input type="file" id="pdf-input" accept="application/pdf" style="display: none;" onchange="loadPDF(event)">
+
+            <div class="flex justify-center mb-6">
+              <button onclick="encryptPDF()"
+                class="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:from-primary-700 hover:to-secondary-700 transition duration-300 transform hover:scale-[1.02] ease-in-out shadow-md">
+                Chiffrer le PDF <i class="fas fa-lock ml-2"></i>
+              </button>
+            </div>
+
+            
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 dark:bg-gray-900 pt-16 pb-8 px-4 md:px-6 lg:px-8 border-t border-gray-200 dark:border-gray-800">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          <div class="space-y-4">
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <span class="font-bold text-lg bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-400 dark:to-secondary-400 bg-clip-text text-transparent">SecretSplit</span>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">
+              Secure threshold cryptography solution for distributed key management and collaborative access control.
+            </p>
+            <div class="flex gap-4">
+              <a href="#" class="text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#" class="text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <i class="fab fa-github"></i>
+              </a>
+              <a href="#" class="text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <i class="fab fa-linkedin"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <h4 class="font-semibold text-sm text-gray-900 dark:text-white">Quick Links</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="/" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  About
+                </a>
+              </li>
+              <li>
+                <a href="register" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Sign Up
+                </a>
+              </li>
+              <li>
+                <a href="login" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Login
+                </a>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="space-y-4">
+            <h4 class="font-semibold text-sm text-gray-900 dark:text-white">Resources</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Documentation
+                </a>
+              </li>
+              <li>
+                <a href="#" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Security
+                </a>
+              </li>
+              <li>
+                <a href="#" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  GitHub
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-xs text-gray-500">
+            © 2025 SecretSplit. All rights reserved.
+          </p>
+          <div class="flex gap-6">
+            <a href="#" class="text-xs text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" class="text-xs text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Terms of Service
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
+      <div class="flex flex-col gap-2 p-4 border-b border-t animate__animated animate__fadeIn">
+        <a href="/" class="p-3 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100">
+          About
+        </a>
+        <a href="login" class="p-3 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100">
+          Login
+        </a>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        const mobileMenuButton = document.querySelector('button[aria-label="Open Menu"]');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (event) => {
+            if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        function loadPDF(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                document.getElementById('pdf-upload').innerHTML = `
+                    <iframe src="${fileURL}" class="w-full h-full"></iframe>
+                    <div class="absolute bottom-2 right-2 bg-white dark:bg-gray-700 px-2 py-1 rounded text-xs">
+                        ${file.name}
+                    </div>
+                `;
+                document.getElementById('pdf-upload').classList.add('relative');
+            } else {
+                document.getElementById('pdf-upload').innerHTML = `
+                    <i class="fas fa-file-pdf text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
+                    <p class="text-gray-500 dark:text-gray-400">Aucun PDF sélectionné</p>
+                `;
+                document.getElementById('pdf-upload').classList.remove('relative');
+            }
+        }
+
+        async function loadWasm() {
+            try {
+                const { default: init, WShamirUser, PubKeyAdder, Combiner, EicCrypt } = await import("./pkg/wasm_interface.js");
+                await init();
+                window.WShamirUser = WShamirUser;
+                window.PubKeyAdder = PubKeyAdder;
+                window.Combiner = Combiner;
+                window.EicCrypt = EicCrypt;
+
+                console.log("WASM loaded.");
+            } catch (err) {
+                console.error("Failed to load WASM:", err);
+            }
+        }
+
+        function showPDFAlert(type, message) {
+            const alert = document.getElementById(`pdf-${type}-alert`);
+            alert.textContent = message;
+            alert.classList.remove('hidden');
+            setTimeout(() => hidePDFAlerts(), 3000);
+        }
+
+        function hidePDFAlerts() {
+            document.getElementById('pdf-success-alert').classList.add('hidden');
+            document.getElementById('pdf-error-alert').classList.add('hidden');
+        }
+
+   async function encryptPDF() {
+    const fileInput = document.getElementById('pdf-input');
+    const marcheInfo = getMarcheInfo();
+    const pub_key = marcheInfo.pubkey;
+    const file = fileInput.files[0];
+
+    if (!file || !pub_key) {
+        showPDFAlert('error', 'Error: No file selected or missing public key');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const fileData = new Uint8Array(e.target.result);
+        let eci_core = new EicCrypt();
+        try {
+            const encrypted_pdf = eci_core.encrypt_pdf_bytes(pub_key, fileData);
+            const formData = new FormData();
+            formData.append('marche_id', marcheInfo.marche_id);
+            formData.append('filename', file.name);
+            formData.append('pdf', new Blob([encrypted_pdf], { type: 'application/pdf' }));
+            const response = await fetch('/api/public/documents', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                document.getElementById('pdf-upload').innerHTML = `
+                    <div class="text-center p-4">
+                        <i class="fas fa-lock text-4xl text-green-500 mb-2"></i>
+                        <p class="mb-4">PDF encrypted successfully!</p>
+                        <p class="text-sm">The document has been sent to the recipient.</p>
+                    </div>
+                `;
+                showPDFAlert('success', 'PDF encrypted and sent successfully!');
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (error) {
+            console.error(error);
+            showPDFAlert('error', 'Error during encryption or upload.');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+async function loadMarcheInfo() {
+    console.log("Loading marche info...");
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const marcheId = urlParams.get('marche_id');
+
+    if (token) {
+        console.log("Loading with token:", token);
+        await loadMarcheByToken(token);
+    } else if (marcheId) {
+        console.log("Loading with marche ID:", marcheId);
+        await loadMarcheById(marcheId);
+    } else {
+        console.log("No identifier found - showing selection UI");
+        await showMarcheSelectionUI();
+    }
+}
+async function showMarcheSelectionUI() {
+    try {
+        const container = document.getElementById('marche-select-container');
+        const select = document.getElementById('marche-select');
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        container.classList.remove('hidden');
+        document.getElementById('pdf-upload').style.pointerEvents = 'none';
+        document.getElementById('pdf-upload').style.opacity = '0.5';
+        const response = await fetch('/api/public/marches');
+        if (!response.ok) throw new Error('Failed to load marches');
+        
+        const marches = await response.json();
+        marches.forEach(marche => {
+            const option = document.createElement('option');
+            option.value = marche.id;
+            option.textContent = `${marche.id} - ${marche.description.substring(0, 30)}${marche.description.length > 30 ? '...' : ''}`;
+            select.appendChild(option);
+        });
+        
+        console.log("Marche selection UI ready");
+    } catch (error) {
+        console.error('Error showing marche selection:', error);
+        showPDFAlert('error', 'Failed to load available marches');
+    }
+}
+async function loadMarcheByToken(token) {
+    try {
+        const response = await fetch(`/api/public/marche-info?token=${token}`);
+        if (!response.ok) throw new Error('Failed to load marche info');
+        
+        const marcheInfo = await response.json();
+        storeAndDisplayMarcheInfo(marcheInfo);
+    } catch (error) {
+        console.error('Error loading marche by token:', error);
+        showPDFAlert('error', 'Invalid or expired token. Showing marche selection...');
+        await showMarcheSelectionUI();
+    }
+}
+async function loadMarcheById(marcheId) {
+    try {
+        const response = await fetch(`/api/public/marches/${marcheId}`);
+        if (!response.ok) throw new Error('Failed to load marche info');
+        
+        const marcheInfo = await response.json();
+        storeAndDisplayMarcheInfo(marcheInfo);
+    } catch (error) {
+        console.error('Error loading marche by ID:', error);
+        showPDFAlert('error', 'Failed to load marché information. Showing marche selection...');
+        await showMarcheSelectionUI();
+    }
+}
+function storeAndDisplayMarcheInfo(marcheInfo) {
+    sessionStorage.setItem('currentMarche', JSON.stringify(marcheInfo));
+    document.getElementById('marche-id').textContent = marcheInfo.marche_id || 'N/A';
+    document.getElementById('marche-description').textContent = marcheInfo.description || 'N/A';
+    document.getElementById('marche-event-date').textContent = marcheInfo.event_date || 'N/A';
+    document.getElementById('marche-select-container').classList.add('hidden');
+    document.getElementById('pdf-upload').style.pointerEvents = 'auto';
+    document.getElementById('pdf-upload').style.opacity = '1';
+    
+    console.log("Marche info loaded and displayed");
+}
+function getMarcheInfo() {
+    const sessionInfo = sessionStorage.getItem('currentMarche');
+    if (sessionInfo) {
+        try {
+            return JSON.parse(sessionInfo);
+        } catch (e) {
+            console.error("Error parsing sessionStorage data:", e);
+        }
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+        marche_id: urlParams.get('marche_id') || '',
+        pubkey: urlParams.get('pubkey') || '',
+        description: decodeURIComponent(urlParams.get('description') || ''),
+        event_date: urlParams.get('event_date') || ''
+    };
+}
+function initEventListeners() {
+    document.getElementById('marche-select')?.addEventListener('change', async (e) => {
+        const marcheId = e.target.value;
+        if (marcheId) {
+            await loadMarcheById(marcheId);
+        }
+    });
+    document.getElementById('refresh-marches')?.addEventListener('click', async () => {
+        await showMarcheSelectionUI();
+    });
+}
+
+// Update your DOMContentLoaded listener
+window.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM fully loaded");
+    try {
+        await loadWasm();
+        initEventListeners();
+        await loadMarcheInfo();
+    } catch (error) {
+        console.error("Initialization error:", error);
+        showPDFAlert('error', 'Failed to initialize page. Please refresh and try again.');
+    }
+});
+    </script>
+</body>
+</html>
